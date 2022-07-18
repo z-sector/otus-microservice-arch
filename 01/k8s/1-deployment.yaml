@@ -34,7 +34,7 @@ spec:
         app: app
     spec:
       containers:            
-        - image: docker.io/vratsev/otus-microservice-arch-01:1.0.0
+        - image: docker.io/vratsev/otus-microservice-arch-01:1.0.1
           name: supercontainer
           ports:
             - containerPort: 8000          
