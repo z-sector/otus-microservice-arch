@@ -1,0 +1,23 @@
+version: "3.6"
+services:
+  postgres_otus_02:
+    container_name: postgres_otus_02_container
+    image: postgres:14-alpine
+    shm_size: 512M
+    volumes:
+      - postgres_otus_02:/data/postgres
+    ports:
+      - "5434:5432"
+    command: >
+      postgres
+      -c work_mem=16MB
+      -c shared_preload_libraries=pg_stat_statements
+      -c pg_stat_statements.track=all
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: otus_02
+      PGDATA: /data/postgres
+
+volumes:
+  postgres_otus_02:

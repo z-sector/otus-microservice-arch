@@ -1,0 +1,13 @@
+image:
+  repository: docker.io/vratsev/otus-microservice-arch-02
+  pullPolicy: IfNotPresent
+  command: ["./app"]
+  migrationCommand: ['./migrate']
+
+global:
+  postgresql:
+    auth:
+      postgresPassword: "postgres"
+      username: otus_02_rw
+      password: otus_02
+      database: otus_02
