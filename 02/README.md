@@ -8,7 +8,7 @@ helm install app ./02/helm -n otus-02
 
 ## Test
 
-Download [Postman collection](https://github.com/wuzyk/otus-microservice-arch/02/tools/postman/collection.json)
+Download [Postman collection](https://raw.githubusercontent.com/wuzyk/otus-microservice-arch/main/02/tools/postman/collection.json)
 
 ```shell
 newman run ~/Downloads/collection.json
