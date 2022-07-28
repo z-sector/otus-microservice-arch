@@ -1,21 +1,21 @@
 # Otus Homework 02
 
-## Apply manifests
+## Install
 
 ```shell
-kubectl create namespace otus-01
-kubectl apply -f ./01/k8s/1-deployment.yaml
-kubectl apply -f ./01/k8s/2-ingress.yaml
+helm install app ./02/helm -n otus-02
 ```
 
-## Request service
+## Test
+
+Download [Postman collection](https://github.com/wuzyk/otus-microservice-arch/02/tools/postman/collection.json)
 
 ```shell
-curl http://arch.homework/otusapp/vladimir.ratsev/health
+newman run ~/Downloads/collection.json
 ```
 
-## Delete namespace
+## Uninstall
 
 ```shell
-kubectl delete namespace otus-01
+helm uninstall app ./02/helm -n otus-02
 ```

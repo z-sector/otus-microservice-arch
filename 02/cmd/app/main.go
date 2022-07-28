@@ -2,16 +2,21 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dialect/pgdialect"
+	"github.com/uptrace/bun/driver/pgdriver"
 	"go.uber.org/zap"
 
 	"github.com/wuzyk/otus-microservice-arch/02/internal/handlers"
 	"github.com/wuzyk/otus-microservice-arch/02/internal/logger"
+	"github.com/wuzyk/otus-microservice-arch/02/internal/repo"
 	"github.com/wuzyk/otus-microservice-arch/02/internal/server"
 )
 
@@ -24,9 +29,21 @@ const (
 func main() {
 	zap.ReplaceGlobals(logger.NewZap(zap.InfoLevel))
 
+	conn := pgdriver.NewConnector(
+		pgdriver.WithAddr(os.Getenv("PG_ADDR")),
+		pgdriver.WithUser(os.Getenv("PG_USR")),
+		pgdriver.WithPassword(os.Getenv("PG_PWD")),
+		pgdriver.WithDatabase(os.Getenv("PG_DBNAME")),
+		pgdriver.WithInsecure(true),
+	)
+	db := bun.NewDB(sql.OpenDB(conn), pgdialect.New())
+
+	userRepo := repo.NewUserRepo(db)
+
 	middlwares := &server.Middlewares{}
 	handlers := &server.Handlers{
-		HealthCheck: handlers.NewHealthCheck(),
+		HealthCheck: handlers.NewHealthCheckHandler(),
+		User:        handlers.NewUserHandler(userRepo),
 	}
 
 	router := server.SetupRouter(middlwares, handlers)

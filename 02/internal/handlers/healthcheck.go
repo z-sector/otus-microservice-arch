@@ -6,12 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type HealthCheck struct{}
+type HealthCheckHandler struct{}
 
-func NewHealthCheck() *HealthCheck {
-	return &HealthCheck{}
+func NewHealthCheckHandler() *HealthCheckHandler {
+	return &HealthCheckHandler{}
 }
 
-func (h *HealthCheck) Handle(c *gin.Context) {
+func (h *HealthCheckHandler) Handle(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "OK"})
 }
