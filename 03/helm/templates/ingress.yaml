@@ -16,3 +16,10 @@ spec:
                   number: 8000
             pathType: Prefix
             path: /
+          - backend:
+              service:
+                name: {{ include "app.fullname" . }}
+                port:
+                  number: 8090
+            pathType: Prefix
+            path: /metrics

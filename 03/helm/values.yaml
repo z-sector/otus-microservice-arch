@@ -11,3 +11,9 @@ global:
       username: otus_03_rw
       password: otus_03
       database: otus_03
+
+postgresql:
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true

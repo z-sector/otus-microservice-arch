@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -21,7 +22,8 @@ import (
 )
 
 const (
-	httpAddr = ":8000"
+	httpAddr    = ":8000"
+	metricsAddr = ":8090"
 
 	shutdownTimeout = 5 * time.Second
 )
@@ -65,12 +67,35 @@ func main() {
 		zap.L().Info("server stopped")
 	}()
 
+	http.Handle("/metrics", promhttp.Handler())
+	go http.ListenAndServe(metricsAddr, nil)
+
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 }
 
 func initHTTPServer(router http.Handler, addr string) *http.Server {
+	srv := http.Server{
+		Addr:    addr,
+		Handler: router,
+	}
+
+	go func() {
+		err := srv.ListenAndServe()
+		if err != nil && err != http.ErrServerClosed {
+			zap.L().Fatal(
+				"http server error",
+				zap.Error(err),
+				zap.String("addr", addr),
+			)
+		}
+	}()
+
+	return &srv
+}
+
+func initMetricsHTTPServer(router http.Handler, addr string) *http.Server {
 	srv := http.Server{
 		Addr:    addr,
 		Handler: router,

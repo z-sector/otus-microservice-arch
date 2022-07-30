@@ -9,5 +9,9 @@ spec:
   ports:
     - port: 8000
       targetPort: 8000
+      name: http
+    - port: 8090
+      targetPort: 8090
+      name: metrics
   selector:
     {{- include "app.selectorLabels" . | nindent 4 }}

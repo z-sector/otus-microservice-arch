@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/penglongli/gin-metrics/ginmetrics"
 )
 
 type Middlewares struct{}
@@ -24,6 +25,9 @@ type Handlers struct {
 
 func SetupRouter(mws *Middlewares, handlers *Handlers) *gin.Engine {
 	router := gin.New()
+
+	ginMetrics := ginmetrics.GetMonitor()
+	ginMetrics.UseWithoutExposingEndpoint(router)
 
 	router.GET("/health", handlers.HealthCheck.Handle)
 
