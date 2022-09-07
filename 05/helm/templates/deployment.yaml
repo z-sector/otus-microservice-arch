@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "app.fullname" . }}
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "app.selectorLabels" . | nindent 6 }}
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        {{- include "app.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "app.fullname" . }}
+      initContainers:
+      - name: "{{ .Chart.Name }}-init"
+        image: "groundnuty/k8s-wait-for:v1.6"
+        imagePullPolicy: IfNotPresent
+        args: 
+        - "job"
+        - "{{ include "app.fullname" . }}-{{ .Chart.AppVersion }}"
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: {{ .Values.image.command }}
+          envFrom:
+          - configMapRef:
+              name: {{ include "app.fullname" . }}
+          - secretRef:
+              name: {{ include "app.fullname" . }}
+          ports:
+            - name: http
+              containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth
+  labels:
+    app.kubernetes.io/name: auth
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: auth
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: auth
+    spec:
+      serviceAccountName: {{ include "app.fullname" . }}
+      initContainers:
+      - name: "{{ .Chart.Name }}-init"
+        image: "groundnuty/k8s-wait-for:v1.6"
+        imagePullPolicy: IfNotPresent
+        args: 
+        - "job"
+        - "{{ include "app.fullname" . }}-{{ .Chart.AppVersion }}"
+      containers:
+        - name: "{{ .Chart.Name }}-auth"
+          image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: {{ .Values.image.authCommand }}
+          envFrom:
+          - configMapRef:
+              name: {{ include "app.fullname" . }}
+          - secretRef:
+              name: {{ include "app.fullname" . }}
+          ports:
+            - name: http
+              containerPort: 8000
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ include "app.fullname" . }}-{{ .Chart.AppVersion }}"
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      initContainers:
+      - name: check-db-ready
+        image: "{{ .Values.postgresql.image.repository}}:{{ .Values.postgresql.image.tag}}"
+        command: ['sh', '-c', 
+          'until pg_isready -h {{ include "postgresql.fullname" .}} -p 5432 -d {{ .Values.global.postgresql.auth.database }} -U {{ .Values.global.postgresql.auth.username }}; 
+          do echo waiting for database; sleep 2; done;']
+      containers:
+      - name: migration
+        image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+        command: {{ .Values.image.migrationCommand }}
+        envFrom:
+        - configMapRef:
+            name: {{ include "app.fullname" . }}
+        - secretRef:
+            name: {{ include "app.fullname" . }}
+  
