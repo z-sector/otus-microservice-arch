@@ -1,0 +1,117 @@
+{
+	"info": {
+		"_postman_id": "89f430f9-b714-4d11-9813-de4609c14424",
+		"name": "otus-06",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3050189"
+	},
+	"item": [
+		{
+			"name": "Create order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"tests[\"[INFO] Request: \" + request.data] = true;",
+							"tests[\"[INFO] Response: \\n\" + responseBody] = true;"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"product_id\": 123,\n    \"quantity\": 10,\n    \"shipping_address\": \"Большая Филевская 16к1, кв. 14\",\n    \"request_id\": \"61c5dbee-55cc-45cf-b1f9-e65a6ab1e3df\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/orders",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Repeat request",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"tests[\"[INFO] Request: \" + request.data] = true;",
+							"tests[\"[INFO] Response: \\n\" + responseBody] = true;"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"product_id\": 123,\n    \"quantity\": 10,\n    \"shipping_address\": \"Большая Филевская 16к1, кв. 14\",\n    \"request_id\": \"61c5dbee-55cc-45cf-b1f9-e65a6ab1e3df\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/orders",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "http://arch.homework",
+			"type": "string"
+		},
+		{
+			"key": "userID",
+			"value": ""
+		}
+	]
+}
